@@ -78,7 +78,7 @@ ssize_t write_callback(struct file *inode, const char *gdata, size_t length, lof
 		return -EFAULT;
 
     value_short = value[0] << 12 | value[1] << 8 |value[2] << 4 |value[3];
-    outw(value_short,(unsigned int)iom_fpga_fnd_addr);	    
+    outw(value_short,(unsigned int)fnd_addr);	    
 	
 	return length;
 }
