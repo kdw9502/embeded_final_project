@@ -35,6 +35,7 @@ static unsigned char *dot_addr;
 static unsigned char *led_addr;
 
 ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *off_what); 
+ssize_t write_callback(struct file *inode, const char *gdata, size_t length, loff_t *off_what);
 int open_callback(struct inode *minode, struct file *mfile);
 int release_callback(struct inode *minode, struct file *mfile);
 
@@ -42,6 +43,7 @@ struct file_operations controll_fops =
 {
 	.owner =		THIS_MODULE,
 	.open =		open_callback,
+	.write = write_callback,
 	.read  =		read_callback,	
 	.release = release_callback,
 };
@@ -63,6 +65,26 @@ int release_callback(struct inode *minode, struct file *mfile)
 	return 0;
 }
 
+// write number to fnd
+ssize_t write_callback(struct file *inode, const char *gdata, size_t length, loff_t *off_what)
+{
+
+	int i;
+	unsigned char value[4];
+	unsigned short int value_short = 0;
+	const char *tmp = gdata;
+
+	if (copy_from_user(&value, tmp, 4))
+		return -EFAULT;
+
+    value_short = value[0] << 12 | value[1] << 8 |value[2] << 4 |value[3];
+    outw(value_short,(unsigned int)iom_fpga_fnd_addr);	    
+	
+	return length;
+}
+
+
+// read pressed button and print button number to dot matrix and led
 ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *off_what) 
 {
 	int i;
@@ -89,8 +111,6 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
 	for(i=0;i<MAX_BUTTON;i++)
     {
         value_short = (unsigned short)(pressed_button);
-        // fnd        
-        outw(value_short,(unsigned int)fnd_addr);
 
         //dot
         for(i=0;i<DOT_HEIGHT;i++)
