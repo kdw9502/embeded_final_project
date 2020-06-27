@@ -77,20 +77,27 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
         push_sw_value[i] = _s_value &0xFF;
     }
 
+	for(i=0;i<MAX_BUTTON;i++)
+    {
+		if (push_sw_value[i] != 0)
+			pressed_button = i+1;
+	}
+
+
     // controll other device on read
 	for(i=0;i<MAX_BUTTON;i++)
     {
-        value_short = (unsigned short)(i+1);
+        value_short = (unsigned short)(pressed_button);
         // fnd        
         outw(value_short,(unsigned int)fnd_addr);
 
         //dot
         for(i=0;i<DOT_HEIGHT;i++)
         {            
-		    outw(fpga_number[value_short][i],(unsigned int)iom_fpga_dot_addr+i*2);
+		    outw(fpga_number[value_short][i],(unsigned int)dot_addr+i*2);
         }
         // led
-        outw(1<<value_short, (unsigned int)iom_fpga_led_addr);
+        outw(1<<value_short, (unsigned int)led_addr);
     }
 
 
