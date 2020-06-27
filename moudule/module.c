@@ -68,7 +68,7 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
 	int i;
 	unsigned char push_sw_value[MAX_BUTTON];	
     unsigned short _s_value;
-    int pressed_button = -1;
+    int pressed_button = 0;
     unsigned short value_short = 0;
 
 	for(i=0;i<length;i++) 
@@ -81,6 +81,7 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
     {
 		if (push_sw_value[i] != 0)
 			pressed_button = i+1;
+			break;
 	}
 
 
