@@ -118,7 +118,7 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
 		    outw(fpga_number[value_short][j] & 0x7F,(unsigned int)dot_addr+j*2);
         }
         // led
-        outw(1<<value_short, (unsigned int)led_addr);
+        outw(1<<(value_short-1)%8, (unsigned int)led_addr);
     }
 
 
