@@ -18,7 +18,7 @@
 
 
 #define MODULE_MAJOR 265				
-#define MODULE_NAME "fpga_controll"
+#define MODULE_NAME "fpga_control"
 
 #define PUSH_SWITCH_ADDRESS 0x08000050
 #define FND_ADDRESS 0x08000004 
@@ -68,8 +68,6 @@ int release_callback(struct inode *minode, struct file *mfile)
 // write number to fnd
 ssize_t write_callback(struct file *inode, const char *gdata, size_t length, loff_t *off_what)
 {
-
-	int i;
 	unsigned char value[4];
 	unsigned short int value_short = 0;
 	const char *tmp = gdata;
@@ -87,7 +85,7 @@ ssize_t write_callback(struct file *inode, const char *gdata, size_t length, lof
 // read pressed button and print button number to dot matrix and led
 ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *off_what) 
 {
-	int i;
+	int i,j;
 	unsigned char push_sw_value[MAX_BUTTON];	
     unsigned short _s_value;
     int pressed_button = 0;
@@ -102,8 +100,10 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
 	for(i=0;i<MAX_BUTTON;i++)
     {
 		if (push_sw_value[i] != 0)
+		{
 			pressed_button = i+1;
 			break;
+		}
 	}
 
 
@@ -113,9 +113,9 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
         value_short = (unsigned short)(pressed_button);
 
         //dot
-        for(i=0;i<DOT_HEIGHT;i++)
+        for(j=0;j<DOT_HEIGHT;j++)
         {            
-		    outw(fpga_number[value_short][i],(unsigned int)dot_addr+i*2);
+		    outw(fpga_number[value_short][j] & 0x7F,(unsigned int)dot_addr+j*2);
         }
         // led
         outw(1<<value_short, (unsigned int)led_addr);

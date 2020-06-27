@@ -4,8 +4,12 @@ obj-m   := module.o
 
 KDIR    :=/work/achroimx_kernel
 PWD     :=$(shell pwd)
+APP := module_test
+all: driver app
 
-all: driver  
+
+app:
+	arm-none-linux-gnueabi-gcc -static -o $(APP) $(APP).c
 
 driver:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules ARCH=arm
