@@ -91,7 +91,8 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
     int pressed_button = 0;
     unsigned short value_short = 0;
 
-	for(i=0;i<length;i++) 
+
+	for(i=0;i<9;i++) 
     {
 		_s_value = inw((unsigned int)switch_addr+i*2);
         push_sw_value[i] = _s_value &0xFF;
@@ -108,21 +109,19 @@ ssize_t read_callback(struct file *inode, char *gdata, size_t length, loff_t *of
 
 
     // controll other device on read
-	for(i=0;i<MAX_BUTTON;i++)
-    {
-        value_short = (unsigned short)(pressed_button);
 
-        //dot
-        for(j=0;j<DOT_HEIGHT;j++)
-        {            
-		    outw(fpga_number[value_short][j] & 0x7F,(unsigned int)dot_addr+j*2);
-        }
-        // led
-        outw(1<<(value_short-1)%8, (unsigned int)led_addr);
+    value_short = (unsigned short)(pressed_button);
+
+    //dot
+    for(j=0;j<DOT_HEIGHT;j++)
+    {            
+	   outw(fpga_number[value_short][j] & 0x7F,(unsigned int)dot_addr+j*2);
     }
+    // led
+    outw(1<<(value_short-1)%8, (unsigned int)led_addr);
 
 
-	if (copy_to_user(gdata, &push_sw_value, length))
+	if (copy_to_user(gdata, &pressed_button, 1))
 		return -EFAULT;
 
 	return length;	
